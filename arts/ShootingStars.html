@@ -1,0 +1,205 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shooting Stars CSS Animation</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      height: 100%;
+      width: 100%;
+      font-family: sans-serif;
+      overflow: hidden;
+      background: #000014;
+    }
+
+    .sky {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* Twinkling stars */
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle 2s infinite alternate;
+    }
+
+    @keyframes twinkle {
+      0% { opacity: 0.2; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.5); }
+      100% { opacity: 0.2; transform: scale(1); }
+    }
+
+    /* Shooting stars */
+    .shooting-star {
+      position: absolute;
+      width: 100px;
+      height: 2px;
+      background: linear-gradient(90deg, white, rgba(255,255,255,0));
+      transform: rotate(45deg);
+      opacity: 0;
+      animation: shoot linear infinite;
+    }
+
+    @keyframes shoot {
+      0% {
+        transform: translate(0,0) rotate(45deg);
+        opacity: 1;
+      }
+      80% { opacity: 1; }
+      100% {
+        transform: translate(120vw,120vh) rotate(45deg);
+        opacity: 0;
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .star { width: 1.5px; height: 1.5px; }
+      .shooting-star { width: 60px; height: 1.5px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sky">
+     Generate stars dynamically -->
+    <!-- <script>
+      const sky = document.querySelector('.sky');
+
+      // Create random twinkling stars
+      for (let i = 0; i < 100; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.top = Math.random() * 100 + 'vh';
+        star.style.left = Math.random() * 100 + 'vw';
+        star.style.animationDuration = (1 + Math.random() * 2) + 's';
+        sky.appendChild(star);
+      }
+
+      // Create random shooting stars
+      for (let i = 0; i < 5; i++) {
+        const shooting = document.createElement('div');
+        shooting.className = 'shooting-star';
+        shooting.style.top = Math.random() * 50 + 'vh';
+        shooting.style.left = '-150px';
+        shooting.style.animationDuration = (2 + Math.random() * 3) + 's';
+        shooting.style.animationDelay = (Math.random() * 10) + 's';
+        sky.appendChild(shooting);
+      }
+    </script>
+  </div>
+</body>
+</html> --> 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Shooting Stars</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; background: #000014; overflow: hidden; }
+  body { font-family: sans-serif; }
+
+  .sky { position: relative; width: 100%; height: 100%; }
+
+  /* Twinkling stars */
+  .star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle 2s infinite alternate;
+  }
+
+  @keyframes twinkle {
+    0% { opacity: 0.2; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.5); }
+    100% { opacity: 0.2; transform: scale(1); }
+  }
+
+  /* Shooting stars */
+  .shooting-star {
+    position: absolute;
+    width: 150px;
+    height: 3px;
+    background: linear-gradient(90deg, white, rgba(255,255,255,0));
+    transform: rotate(45deg);
+    opacity: 0;
+    animation: shoot linear forwards;
+    box-shadow: 0 0 8px white, 0 0 15px rgba(255,255,255,0.5);
+  }
+
+  @keyframes shoot {
+    0% { transform: translate(0,0) rotate(45deg); opacity: 1; }
+    100% { transform: translate(120vw, 120vh) rotate(45deg); opacity: 0; }
+  }
+
+  @media (max-width: 600px) {
+    .star { width: 1.5px; height: 1.5px; }
+    .shooting-star { width: 100px; height: 2px; }
+  }
+</style>
+</head>
+<body>
+<div class="sky"></div>
+
+<script>
+const sky = document.querySelector('.sky');
+
+// Create twinkling stars
+for (let i = 0; i < 100; i++) {
+  const star = document.createElement('div');
+  star.className = 'star';
+  star.style.top = Math.random() * 100 + 'vh';
+  star.style.left = Math.random() * 100 + 'vw';
+  star.style.animationDuration = (1 + Math.random() * 2) + 's';
+  sky.appendChild(star);
+}
+
+// Function to create shooting star at x, y
+function shootStar(x, y, duration = 2) {
+  const shooting = document.createElement('div');
+  shooting.className = 'shooting-star';
+  shooting.style.top = y + 'px';
+  shooting.style.left = x + 'px';
+  shooting.style.animationDuration = duration + 's';
+  sky.appendChild(shooting);
+
+  shooting.addEventListener('animationend', () => shooting.remove());
+}
+
+// Interactive shooting stars
+sky.addEventListener('click', e => shootStar(e.clientX, e.clientY, 1.5));
+sky.addEventListener('touchstart', e => {
+  const touch = e.touches[0];
+  shootStar(touch.clientX, touch.clientY, 1.5);
+});
+
+// Random automatic shooting stars
+function randomShooting() {
+  const x = Math.random() * window.innerWidth / 2; // start from left half
+  const y = Math.random() * window.innerHeight / 2; // start from top half
+  const duration = 1.5 + Math.random() * 2; // random speed
+  shootStar(x, y, duration);
+  setTimeout(randomShooting, 2000 + Math.random() * 3000); // random interval
+}
+
+// Start random shooting stars
+randomShooting();
+</script>
+</body>
+</html>
