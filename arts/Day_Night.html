@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Day ⇄ Night — CSS-only Micro-Diorama (v2)</title>
+<!--
+  File: shaiqin-day-night-final-v2.html
+  Author: shaiqin
+  Notes: Pure CSS. No external assets. Toggle with the round button (top-right) or press "T".
+-->
+<style>
+  :root{
+    --day-top: #92d6ff;
+    --day-bot: #dff6ff;
+    --night-top: #001827;
+    --night-bot: #001a2b;
+    --sun: #ffd24a;
+    --moon: #eef6ff;
+    --grass-a: #66b86a;
+    --grass-b: #2e8a3a;
+    --house: #fff3e0;
+    --roof: #7b3f35;
+    --lamp-glow: rgba(255,210,120,0.9);
+    --trans: 700ms cubic-bezier(.2,.9,.3,1);
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:linear-gradient(var(--day-top),var(--day-bot));transition:background var(--trans);-webkit-font-smoothing:antialiased}
+  /* top-level layout */
+  .page{position:relative;width:100%;height:100vh;overflow:hidden}
+
+  /* hidden checkbox (must come BEFORE .scene for sibling selector) */
+  #toggle {position:absolute;left:-9999px}
+
+  /* toggle button */
+  .toggle-btn{
+    position:fixed;right:18px;top:18px;z-index:120;
+    width:56px;height:56px;border-radius:50%;display:grid;place-items:center;
+    background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.04));
+    border:1px solid rgba(255,255,255,0.08);cursor:pointer;backdrop-filter:blur(6px);
+    box-shadow:0 10px 28px rgba(2,6,12,0.45);transition:transform .12s ease;
+  }
+  .toggle-btn:active{transform:scale(.98)}
+  .toggle-dot{
+    width:40px;height:40px;border-radius:50%;background:var(--sun);box-shadow:inset 0 6px 14px rgba(0,0,0,0.12);transition:all var(--trans);
+  }
+
+  /* Press T to toggle (keyboard hint) */
+  .hint{position:fixed;right:86px;top:26px;color:rgba(255,255,255,0.9);font-size:12px;z-index:120;opacity:.9}
+
+  /* scene container */
+  .scene{position:relative;width:100%;height:100%;overflow:hidden}
+
+  /* sky (top layer) */
+  .sky{position:absolute;inset:0;z-index:10;background:linear-gradient(var(--day-top),var(--day-bot));transition:background var(--trans)}
+
+  /* sun & moon */
+  .sunmoon{position:absolute;left:6%;top:8%;width:140px;height:140px;z-index:30;transition:transform var(--trans),opacity var(--trans)}
+  .sun{width:100%;height:100%;border-radius:50%;background:var(--sun);box-shadow:0 24px 80px rgba(255,170,40,0.16) inset}
+  .moon{position:absolute;inset:0;border-radius:50%;background:var(--moon);opacity:0;transform:scale(.8) translateY(10px);box-shadow:0 12px 24px rgba(6,18,40,0.35)}
+  /* stars (night) */
+  .stars{position:absolute;inset:0;z-index:32;pointer-events:none;opacity:0;transition:opacity var(--trans)}
+  .star{position:absolute;width:3px;height:3px;border-radius:50%;background:radial-gradient(circle,#fff9d6,#ffd);box-shadow:0 0 8px rgba(255,250,200,0.12);opacity:.92;animation:tw 6s infinite}
+  @keyframes tw{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.6);opacity:.3}}
+
+  /* clouds */
+  .clouds{position:absolute;left:6%;top:18%;width:78%;height:160px;pointer-events:none;z-index:34}
+  .cloud{position:absolute;height:64px;border-radius:999px;background:rgba(255,255,255,0.96);filter:blur(.2px);box-shadow:0 18px 36px rgba(0,0,0,0.08);transition:transform var(--trans),opacity var(--trans);animation:cloudfloat 30s linear infinite}
+  .cloud.c1{left:0;top:8px;width:420px;height:68px}
+  .cloud.c1::before{content:"";position:absolute;left:56px;top:-28px;width:180px;height:86px;border-radius:999px;background:inherit}
+  .cloud.c2{left:50%;top:6px;width:300px;height:56px;animation-duration:38s}
+  @keyframes cloudfloat{0%{transform:translateX(-6px)}50%{transform:translateX(8px)}100%{transform:translateX(-6px)}}
+
+  /* ground & horizon */
+  .horizon{position:absolute;left:0;right:0;bottom:0;height:44%;z-index:22}
+  .ground{position:absolute;left:0;right:0;bottom:0;height:44%;background:linear-gradient(180deg,var(--grass-a),var(--grass-b));z-index:24;box-shadow:inset 0 12px 40px rgba(0,0,0,0.18)}
+
+  /* pond */
+  .pond{position:absolute;left:8%;bottom:20%;width:36%;height:16%;border-radius:999px;background:linear-gradient(rgba(255,255,255,0.12), rgba(255,255,255,0.02));filter:blur(6px);opacity:.12;transform:rotate(-3deg);z-index:20}
+
+  /* house */
+  .house{position:absolute;right:8%;bottom:18%;width:200px;height:140px;background:var(--house);border-radius:10px;z-index:38;box-shadow:0 12px 36px rgba(0,0,0,0.22);transition:transform .6s cubic-bezier(.2,.9,.3,1)}
+  .house::before{content:"";position:absolute;left:50%;top:-44px;transform:translateX(-50%) skewX(-12deg);width:260px;height:68px;background:var(--roof);border-radius:6px;box-shadow:0 12px 30px rgba(0,0,0,0.18)}
+  .door{position:absolute;left:50%;bottom:18px;width:44px;height:68px;background:#3a2720;border-radius:6px;transform:translateX(-50%)}
+  .window{position:absolute;width:36px;height:36px;border-radius:6px;background:linear-gradient(#fff7b2,#ffd98a);left:20px;top:20px;box-shadow:0 10px 30px rgba(255,170,60,0.08)}
+  .window.r{right:20px;left:auto}
+  /* tree */
+  .tree{position:absolute;left:8%;bottom:18%;z-index:38}
+  .trunk{width:22px;height:72px;background:#6b4a2a;border-radius:6px;margin-left:14px;box-shadow:inset 0 -6px 12px rgba(0,0,0,0.12)}
+  .crown{width:120px;height:120px;border-radius:999px;background:radial-gradient(circle at 30% 25%, #bfe79d,#57a84f 55%, #2f6b39 100%);margin-top:-96px;margin-left:-34px;box-shadow:0 10px 36px rgba(10,40,10,0.18)}
+
+  /* street + lamp */
+  .street{position:absolute;left:0;right:0;bottom:0;height:12%;background:linear-gradient(#2f2f2f,#252525);z-index:40;box-shadow:inset 0 6px 12px rgba(0,0,0,0.22)}
+  .lamp{position:absolute;left:50%;bottom:26%;transform:translateX(-50%);z-index:42}
+  .lamp .post{width:8px;height:112px;background:#1b1b1b;border-radius:6px}
+  .lamp .head{position:absolute;left:8px;top:-42px;width:48px;height:26px;border-radius:10px;background:#232323;box-shadow:0 8px 24px rgba(0,0,0,0.3)}
+  .lamp .glow{position:absolute;left:-14px;top:-20px;width:90px;height:90px;border-radius:50%;filter:blur(10px);opacity:.24;background:radial-gradient(circle at 30% 25%, var(--lamp-glow), rgba(255,190,80,0.04));transition:opacity var(--trans)}
+  /* reflection */
+  .ref{position:absolute;right:8%;bottom:8%;width:200px;height:28px;border-radius:8px;transform:skewX(-12deg);filter:blur(6px);opacity:.06;background:linear-gradient(transparent, rgba(255,255,255,0.6));z-index:18}
+
+  /* frame shadow */
+  .frame-shadow{position:absolute;left:0;right:0;bottom:0;height:8%;background:linear-gradient(rgba(0,0,0,0.22), transparent);z-index:60;pointer-events:none}
+
+  /* hover lift */
+  .scene:hover .house{transform:translateY(-6px)}
+  .scene:hover .cloud{transform:translateY(-3px)}
+
+  /* reduced motion */
+  @media (prefers-reduced-motion: reduce){
+    .cloud{animation:none}
+    .star{animation:none}
+    .scene:hover .house{transform:none}
+  }
+
+  /* DAY -> NIGHT states via checkbox sibling selectors */
+  #toggle:checked ~ .scene .sky { background: linear-gradient(var(--night-top),var(--night-bot)); }
+  #toggle:checked ~ .scene .sun { opacity:0; transform:translateY(10px) scale(.55); filter:blur(.5px) }
+  #toggle:checked ~ .scene .moon { opacity:1; transform:scale(1) translateY(0) }
+  #toggle:checked ~ .scene .stars { opacity:1 }
+  #toggle:checked ~ .scene .cloud { opacity:.25; transform:translateY(-8px) }
+  #toggle:checked ~ .scene .window { background: linear-gradient(#e6f7ff,#d7eeff); opacity:.36; filter:brightness(.6); box-shadow:none }
+  #toggle:checked ~ .scene .lamp .glow { opacity:.08 }
+  #toggle:checked ~ .scene .pond { opacity:.04 }
+  /* also change the toggle dot color */
+  #toggle:checked ~ label .toggle-dot { background: var(--moon); box-shadow: inset 0 6px 12px rgba(0,0,0,0.14) }
+
+  /* toggle body background change via sibling trick (affects page background) */
+  #toggle:checked ~ .scene ~ .bg-helper { /* trick to flip body BG */ }
+  /* can't directly style body with sibling, so animate the page background using a small hack below via label:active not necessary */
+  
+  /* fallback for small screens */
+  @media (max-width:720px){
+    .house{right:6%;width:140px;height:110px}
+    .house::before{width:180px;top:-36px}
+    .crown{width:92px;height:92px;margin-left:-22px}
+    .pond{left:6%;width:52%}
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <!-- checkbox must be BEFORE the scene element -->
+    <input id="toggle" type="checkbox" aria-label="Toggle day / night (press T)" />
+    <label for="toggle" class="toggle-btn" title="Toggle Day / Night (press T)" role="button" aria-pressed="false">
+      <span class="toggle-dot" aria-hidden="true"></span>
+    </label>
+    <div class="hint" aria-hidden="true">Press <strong>T</strong> to toggle</div>
+
+    <!-- main visual scene -->
+    <div class="scene" role="img" aria-label="A landscape with house, tree, lamp and pond that toggles between day and night">
+      <div class="sky"></div>
+
+      <div class="sunmoon" aria-hidden="true">
+        <div class="sun"></div>
+        <div class="moon" style="position:absolute;inset:0;border-radius:50%;"></div>
+      </div>
+
+      <div class="stars" aria-hidden="true">
+        <span class="star s1" style="left:72%;top:8%"></span>
+        <span class="star s2" style="left:84%;top:18%"></span>
+        <span class="star s3" style="left:60%;top:16%"></span>
+        <span class="star s4" style="left:50%;top:8%"></span>
+        <span class="star s5" style="left:38%;top:12%"></span>
+        <span class="star s6" style="left:22%;top:6%"></span>
+        <span class="star s7" style="left:16%;top:18%"></span>
+        <span class="star s8" style="left:88%;top:4%"></span>
+        <span class="star s9" style="left:44%;top:26%"></span>
+        <span class="star s10" style="left:28%;top:30%"></span>
+      </div>
+
+      <div class="clouds" aria-hidden="true">
+        <div class="cloud c1"></div>
+        <div class="cloud c2"></div>
+      </div>
+
+      <div class="horizon"></div>
+      <div class="ground"></div>
+
+      <div class="pond" aria-hidden="true"></div>
+
+      <div class="house" aria-hidden="true">
+        <div class="door"></div>
+        <div class="window"></div>
+        <div class="window r"></div>
+      </div>
+
+      <div class="tree" aria-hidden="true">
+        <div class="trunk"></div>
+        <div class="crown"></div>
+      </div>
+
+      <div class="lamp" aria-hidden="true">
+        <div class="post"></div>
+        <div class="head"></div>
+        <div class="glow"></div>
+      </div>
+
+      <div class="ref" aria-hidden="true"></div>
+
+      <div class="street" aria-hidden="true"></div>
+
+      <div class="frame-shadow"></div>
+    </div>
+
+    <!-- invisible element to allow future CSS-only body tricks if needed -->
+    <div class="bg-helper" aria-hidden="true" style="display:none"></div>
+  </div>
+
+<script>
+  // small, optional keyboard helper: press "T" toggles checkbox (purely for convenience)
+  document.addEventListener('keydown', function(e){
+    if(e.key && e.key.toLowerCase() === 't'){
+      const cb = document.getElementById('toggle'); cb.checked = !cb.checked;
+      // update aria-pressed on label (not required, but helpful)
+      const lbl = document.querySelector('label[for="toggle"]');
+      if(lbl) lbl.setAttribute('aria-pressed', String(cb.checked));
+    }
+  });
+</script>
+</body>
+</html>
