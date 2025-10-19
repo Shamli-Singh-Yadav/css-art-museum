@@ -1017,7 +1017,7 @@
     "title":"Firework Animation",
     "author":"cocoisarobo",
     "tags":["fireworks", "css", "animation", "diwali"],
-    "description":"A simple fireworks animation made using HTML, CSS and Javascript",
+    "description":"A simple fireworks animation made using HTML, CSS and Javascript"
   },
   {
     "file": "universesm_clock.html",
@@ -1042,5 +1042,14 @@
     "tags":["pixel art","waves","sunset"],
     "description":"Pixel rendition of a stormy evening with a colossal wave crashing down.",
     "date":"2025-10-15"
+  },
+  {
+    "file": "VanshBhadana-BlinkingOwl.html",
+    "title": "Owl",
+    "author": "Vansh Bhadana",
+    "tags":["animation","owl","bird"],
+    "description":"Cute Little Owl.",
+    "date":"2025-10-19"
+
   }
 ]
