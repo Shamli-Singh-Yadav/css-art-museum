@@ -1203,5 +1203,15 @@
    "tags": ["animation", "solar-system", "orbits", "css"],
    "description": "Visualize an orbital dance of planets around the sun in this animated solar system model.Highlighting css animations",
    "date": "2025-10-11"
-  }
+  },
+
+  
+{
+  "file": "Sanskriti-aurora.html",
+  "title": "Aurora Borealis",
+  "author": "Sanskriti Mishra",
+  "tags": ["animation", "nature", "aurora", "landscape", "northern-lights"],
+  "description": "Animated Northern Lights with flowing aurora waves, twinkling stars, moon, mountains, and pine trees. Pure CSS nature scene.",
+  "date": "2025-10-22"
+}
 ]
